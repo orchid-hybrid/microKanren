@@ -84,9 +84,16 @@
 		  (if d^
 		      (unit d^)
 		      mzero)))
-	      d)
+	      (filter (lambda (l) (not (null? l))) d))
 	(lambda (d)
 	  (unit `(,s ,c ,d)))))
+
+(define (filter p l)
+  (if (null? l)
+      '()
+      (if (p (car l))
+	  (cons (car l) (filter p (cdr l)))
+	  (filter p (cdr l)))))
 
 (define (unify u v s)
   (let ((u (walk u s)) (v (walk v s)))
