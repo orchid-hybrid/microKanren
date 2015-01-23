@@ -1,3 +1,11 @@
+~µKanren
+==========
+
+Trying to add the =/= constraint to µKanren based on William Byrd's lecture: [Uncourse #8](https://www.youtube.com/watch?v=mMQ6On3vdvA)
+
+First attempt seems to be working ok but isn't efficient and the code looks ugly (doesn't fit with the very elegant minimal muKanren style), hope to make it cleaner.
+
+
 µKanren
 ==========
 

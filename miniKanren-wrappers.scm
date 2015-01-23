@@ -1,9 +1,16 @@
+(define (assp proc alist)
+  ;; returns: first element of alist for whose car proc returns true, or #f
+  (if (null? alist)
+      #f
+      (if (proc (car (car alist)))
+	  (car alist)
+	  (assp proc (cdr alist)))))
 
 ;;;; How to make a simple miniKanren (substitution only)
 
 (define-syntax Zzz
   (syntax-rules ()
-    ((_ g) (lambda (s/c) (lambda () (g s/c))))))
+    ((_ g) (lambda (s/c/d) (lambda () (g s/c/d))))))
 
 (define-syntax conj+
   (syntax-rules ()
@@ -37,7 +44,7 @@
     ((_ (x ...) g0 g ...)
      (map reify-1st (take-all (call/goal (fresh (x ...) g0 g ...)))))))
 
-(define empty-state '(() . 0))
+(define empty-state '(() 0 ()))
 
 (define (call/goal g) (g empty-state))
 
@@ -53,9 +60,18 @@
     (let (($ (pull $)))
       (if (null? $) '() (cons (car $) (take (- n 1) (cdr $)))))))
 
-(define (reify-1st s/c)
-  (let ((v (walk* (var 0) (car s/c))))
-    (walk* v (reify-s v '()))))
+(define (reify-1st s/c/d)
+  (let ((v (walk* (var 0) (car s/c/d)))
+	(d (caddr s/c/d)))
+    (define (what t)
+      (let ((v (walk* t (car s/c/d))))
+	(walk* v (reify-s v '()))))
+    (what (list v
+		`(and . ,(map (lambda (mini)
+				`(or . ,(map (lambda (dis)
+					       `(=/= ,(walk* (car dis) (car s/c/d))
+						     ,(walk* (cdr dis) (car s/c/d))))
+					     mini))) d))))))
 
 (define (walk* v s)
   (let ((v (walk v s)))
@@ -96,7 +112,7 @@
     ((_ title tested-expression expected-result)
      (begin
        (printf "Testing ~s\n" title)
-       (let* ((expected expected-result)
+       '(let* ((expected expected-result)
               (produced tested-expression))
          (or (equal? expected produced)
              (errorf 'test-check
@@ -110,6 +126,13 @@
        (== `(,a . ,d) l)
        (== `(,a . ,res) out)
        (appendo d s res)))))
+
+(define (membero x l)
+  (conde
+   ((fresh (xs) (== l `(,x . ,xs))))
+   ((fresh (y xs)
+	   (== l `(,y . ,xs))
+	   (membero x xs)))))
 
 (test-check 'run*
   (run* (q) (fresh (x y) (== `(,x ,y) q) (appendo x y '(1 2 3 4 5))))
