@@ -10,6 +10,21 @@
                "Failed: ~a~%Expected: ~a~%Computed: ~a~%"
                'tested-expression expected produced)))))))
 
+(define (rembero e l r)
+  (conde
+   ((== l '()) (== r '()))
+   ((fresh (x xs ys)
+	   (== l `(,x . ,xs))
+	   (== e x)
+	   (== ys r)
+	   (rembero e xs ys)))
+   ((fresh (x xs ys)
+	   (== l `(,x . ,xs))
+	   (=/= e x)
+	   (== `(,x . ,ys) r)
+	   (rembero e xs ys)))))
+
+
 (test-checko 'xy (run 1 (q) (== q 'x) (=/= q 'y))
 	     '((x (and (or)))))
 
