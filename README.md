@@ -1,12 +1,26 @@
-~µKanren
+~ÂµKanren
 ==========
 
-Trying to add the =/= constraint to µKanren based on William Byrd's lecture: [Uncourse #8](https://www.youtube.com/watch?v=mMQ6On3vdvA)
+Trying to add the =/= constraint to ÂµKanren based on William Byrd's lecture: [Uncourse #8](https://www.youtube.com/watch?v=mMQ6On3vdvA)
 
 First attempt seems to be working ok but isn't efficient and the code looks ugly (doesn't fit with the very elegant minimal muKanren style), hope to make it cleaner.
 
+**Bugs**
 
-µKanren
+Noticed a bug in this when i tried rembero and it was failing when it shouldn't have. I cut the test case down to this:
+
+```
+> (run* (q) (fresh (x xs) (== '(a b) `(,x . ,xs)) (=/= 'c x)))
+((_.0 (and (or))))
+> (run* (q) (fresh (x xs) (== '(a b) `(,x . ,xs)) (=/= 'c x) (== q `(,x ,xs))))
+()
+```
+
+and I think the bug came from an edge case in de-morgans law applied to an empty or like `(and (or))`. So the fix was to filter out empties.
+
+
+
+ÂµKanren
 ==========
 
 Copyright (C) 2013 Jason Hemann and Daniel P. Friedman
